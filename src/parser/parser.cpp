@@ -1,5 +1,7 @@
 #include <parser/parser.h>
 
+#include <algorithm>
+
 const char symbols[] = {
     ':',
     ';',

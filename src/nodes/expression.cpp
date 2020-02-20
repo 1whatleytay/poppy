@@ -110,10 +110,13 @@ json ExpressionNode::build() {
         case Expression::Number:
             return { { "type", "number" }, { "content", std::stold(content) } };
         case Expression::Method:
-            if (content == "input")
+            if (content == "input") {
                 return { { "type", "input" } };
-            else
+            } else if (content == "random") {
+                return { { "type", "random" }, { "content", children[0]->build() } };
+            } else {
                 return { { "type", "method" }, { "content", content } }; // shouldnt happen
+            }
         case Expression::Concat: {
             std::vector<json> array;
 
@@ -183,6 +186,9 @@ ExpressionNode::ExpressionNode(Parser &parser, Node *parent) : Node(Type::Expres
         if (parser.peekWord() == "(") {
             expression = Expression::Method;
             parser.nextWord();
+            if (content == "random") {
+                children.push_back(ExpressionNode::eval(parser, this));
+            }
             // no content :) for input()
             if (parser.nextWord() != ")")
                 throw std::runtime_error("eyo what");
