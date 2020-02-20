@@ -5,7 +5,9 @@ add_library(nodes STATIC
     include/nodes/call.h
     include/nodes/expression.h
     include/nodes/statement.h
+    include/nodes/loop.h
     include/nodes/name.h
+    include/nodes/break.h
     include/nodes/utils.h
 
     node.cpp
@@ -14,7 +16,9 @@ add_library(nodes STATIC
     call.cpp
     expression.cpp
     statement.cpp
+    loop.cpp
     name.cpp
+    break.cpp
     utils.cpp)
 
 target_include_directories(nodes PUBLIC include)

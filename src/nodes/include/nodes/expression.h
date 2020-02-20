@@ -16,6 +16,8 @@ public:
     Expression expression = Expression::Unknown;
 
     std::string content;
+    // i'm lazy
+    std::vector<uint32_t> indices;
 
     static std::shared_ptr<ExpressionNode> eval(Parser &parser, Node *parent);
 

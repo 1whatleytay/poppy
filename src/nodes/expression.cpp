@@ -4,11 +4,36 @@
 
 #include <queue>
 
-std::vector<std::string> binops = {
-    "is",
-    "and",
-    "or",
+class BinOp {
+public:
+    std::string eval;
+
+    std::vector<std::vector<std::string>> syntax;
 };
+
+std::vector<BinOp> binops = {
+    { "+", { { "+" }, { "plus" } } },
+    { "-", { { "-" }, { "minus" } } },
+    { "isnt", { { "isnt" }, { "is", "not" }, { "!", "=" } } },
+    { "is", { { "is" }, { "=", "=" } } },
+    { "<=", { { "lte" }, { "<", "=" } } },
+    { ">=", { { "gte" }, { ">", "=" } } },
+    { "<", { { "lt" }, { "<" } } },
+    { ">", { { "gt" }, { ">" } } },
+    { "and", { { "and" }, { "&", "&" } } },
+    { "or", { { "or" }, { "|", "|" } } },
+};
+
+//std::vector<std::string> binops = {
+//    "+",
+//    "-",
+//    "is",
+//    "isnt",
+//    "lesser",
+//    ">",
+//    "and",
+//    "or",
+//};
 
 std::shared_ptr<ExpressionNode> ExpressionNode::eval(Parser &parser, Node *parent) {
     std::vector<std::shared_ptr<ExpressionNode>> nodes;
@@ -17,18 +42,40 @@ std::shared_ptr<ExpressionNode> ExpressionNode::eval(Parser &parser, Node *paren
     while (true) {
         nodes.push_back(std::make_shared<ExpressionNode>(parser, parent));
 
-        std::string check = parser.peekWord();
+        parser.select();
 
-        if (std::find(binops.begin(), binops.end(), check) != binops.end()) {
-            parser.nextWord();
-            keywords.push_back(check);
-        } else {
-             break;
+        bool match = false;
+        for (const auto &pair : binops) {
+            for (const std::vector<std::string> &syntax : pair.syntax) {
+                match = true;
+                for (const std::string &text : syntax) {
+                    if (parser.nextWord() != text) {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (match) {
+                    keywords.push_back(pair.eval);
+                    break;
+                }
+
+                parser.back();
+            }
+
+            if (match)
+                break;
         }
+
+        if (!match)
+            break;
     }
 
-    for (const std::string &op : binops) {
+    for (const auto &op : binops) {
         for (uint32_t a = 0; a < keywords.size(); a++) {
+            if (op.eval != keywords[a])
+                continue;
+
             std::shared_ptr<ExpressionNode> expression = std::make_shared<ExpressionNode>(parent);
 
             std::shared_ptr<ExpressionNode> paramA = nodes[a];
@@ -61,7 +108,7 @@ json ExpressionNode::build() {
         case Expression::Quotes:
             return { { "type", "string" }, { "content", content } };
         case Expression::Number:
-            return { { "type", "string" }, { "content", std::stold(content) } };
+            return { { "type", "number" }, { "content", std::stold(content) } };
         case Expression::Method:
             if (content == "input")
                 return { { "type", "input" } };
@@ -70,8 +117,23 @@ json ExpressionNode::build() {
         case Expression::Concat: {
             std::vector<json> array;
 
-            for (const std::shared_ptr<Node> &node : children) {
-                array.push_back(node->build());
+            uint32_t start = 0;
+
+            for (uint32_t a = 0; a < children.size(); a++) {
+                std::string catchup = content.substr(start, indices[a] - start);
+                if (!catchup.empty()) {
+                    array.push_back({ { "type", "string" }, { "content", catchup } });
+                }
+
+                array.push_back(children[a]->build());
+
+                start = indices[a];
+            }
+
+            // copy rest of string if there
+            std::string catchup = content.substr(start);
+            if (!catchup.empty()) {
+                array.push_back({ { "type", "string" }, { "content", catchup } });
             }
 
             return { { "type", "concat" }, { "content", array } };
@@ -94,17 +156,27 @@ ExpressionNode::ExpressionNode(Node *parent) : Node(Type::Expression, parent), e
 ExpressionNode::ExpressionNode(Parser &parser, Node *parent) : Node(Type::Expression, parent) {
     std::string name = parser.nextWord();
 
+    if (name.empty())
+        throw std::runtime_error("whatheheck");
+
     if (name == "'") { // string
         parser.rollback(); // parseString needs quote for some reason lol
         QuotesValue value = parseString(parent, parser, "'");
+        content = value.text;
 
         if (value.inserts.empty()) {
             expression = Expression::Quotes;
-            content = value.text;
         } else {
             expression = Expression::Concat;
-            assert(false); // fuck me
+            for (const QuotesInsertPoint &a : value.inserts) {
+                children.push_back(a.expressionNode);
+                indices.push_back(a.insertPoint);
+            }
         }
+    } else if (std::isdigit(name[0])) {
+        parser.rollback();
+        expression = Expression::Number;
+        content = parseDigit(parser);
     } else {
         content = name;
 

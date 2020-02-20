@@ -20,6 +20,8 @@ public:
         Code,
         Name,
         If,
+        Loop,
+        Break,
         Call,
         Statement,
         Expression,

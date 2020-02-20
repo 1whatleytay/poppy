@@ -23,6 +23,4 @@ json Compiler::compile() {
     return result;
 }
 
-Compiler::Compiler(std::string source) : source(std::move(source)) {
-
-}
+Compiler::Compiler(std::string source) : source(std::move(source)) { }

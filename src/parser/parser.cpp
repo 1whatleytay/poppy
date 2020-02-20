@@ -1,8 +1,5 @@
 #include <parser/parser.h>
 
-#include <sstream>
-#include <iostream>
-
 const char symbols[] = {
     ':',
     ';',
@@ -21,6 +18,7 @@ const char symbols[] = {
     '%',
     '^',
     '&',
+    '|',
     '*',
     '(',
     ')',
@@ -40,18 +38,6 @@ bool isStrongChar(char ch) {
     }
     return false;
 }
-
-//void Parser::pushMode(Parser::Mode mode) {
-//    modes.push(currentMode);
-//    currentMode = mode;
-//}
-//
-//Parser::Mode Parser::popMode() {
-//    Mode lastMode = currentMode;
-//    currentMode = modes.top();
-//    modes.pop();
-//    return lastMode;
-//}
 
 bool Parser::end(int offset) {
     return index + offset >= text.length();

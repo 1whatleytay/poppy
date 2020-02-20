@@ -20,3 +20,4 @@ public:
 };
 
 QuotesValue parseString(Node *parent, Parser &parser, const std::string &quote = "\'");
+std::string parseDigit(Parser &parser);

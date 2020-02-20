@@ -43,3 +43,12 @@ QuotesValue parseString(Node *parent, Parser &parser, const std::string &quote) 
 
     return value;
 }
+
+std::string parseDigit(Parser &parser) {
+    std::string text = parser.nextWord();
+    if (parser.peekWord() == ".") {
+        text += parser.nextWord() + parser.nextWord(); // .12
+    }
+
+    return text;
+}

@@ -12,6 +12,8 @@ json IfNode::build() {
         if (children[a].get()->type == Type::Expression) {
             result["source"] = children[a].get()->build();
             a++;
+        } else {
+            result["source"] = nullptr;
         }
 
         result["code"] = children[a]->build();
