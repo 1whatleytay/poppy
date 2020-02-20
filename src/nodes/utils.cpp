@@ -28,11 +28,11 @@ QuotesValue parseString(Node *parent, Parser &parser, const std::string &quote) 
                 insert.expressionNode = ExpressionNode::eval(parser, parent);
                 value.inserts.push_back(insert);
                 if (parser.nextWord() != ")")
-                    throw std::exception();
+                    throw std::runtime_error("Unknown error related to string templates.");
             } else if (nextSymbol == "'") {
                 output << "'";
             } else {
-                throw std::exception();
+                throw std::runtime_error("Unknown error related to string escapes.");
             }
         }
     }

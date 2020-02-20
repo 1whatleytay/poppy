@@ -42,11 +42,11 @@ IfNode::IfNode(Parser &parser, Node *parent) : Node(Type::If, parent) {
         }
 
         if (parser.nextWord() != "{")
-            throw std::runtime_error("syntax man");
+            throw std::runtime_error("Missing { after if statement.");
 
         children.push_back(std::make_shared<CodeNode>(parser, this));
 
         if (parser.nextWord() != "}")
-            throw std::runtime_error("hmm");
+            throw std::runtime_error("Missing } after if content.");
     } while (parser.peekWord() == "else");
 }

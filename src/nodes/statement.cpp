@@ -2,6 +2,8 @@
 
 #include <nodes/expression.h>
 
+#include <fmt/format.h>
+
 json StatementNode::build() {
     assert(children.size() == 1);
 
@@ -35,7 +37,7 @@ StatementNode::StatementNode(Parser &parser, Node *parent) : Node(Type::Statemen
     }
 
     if (parser.nextWord() != "=")
-        throw std::runtime_error("wtf");
+        throw std::runtime_error(fmt::format("Invalid statement operator {}.", parser.lastWord()));
 
     children.push_back(ExpressionNode::eval(parser, this));
 }

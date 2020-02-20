@@ -2,6 +2,8 @@
 
 #include <nodes/utils.h>
 
+#include <fmt/format.h>
+
 #include <queue>
 
 class BinOp {
@@ -150,7 +152,8 @@ json ExpressionNode::build() {
             };
         }
         default:
-            throw std::runtime_error("what lol");
+            throw std::runtime_error(fmt::format(
+                "Internal error related to missing expression type {}.", static_cast<uint32_t>(expression)));
     }
 }
 
@@ -160,7 +163,7 @@ ExpressionNode::ExpressionNode(Parser &parser, Node *parent) : Node(Type::Expres
     std::string name = parser.nextWord();
 
     if (name.empty())
-        throw std::runtime_error("whatheheck");
+        throw std::runtime_error("Incomplete expression.");
 
     if (name == "'") { // string
         parser.rollback(); // parseString needs quote for some reason lol
@@ -191,7 +194,7 @@ ExpressionNode::ExpressionNode(Parser &parser, Node *parent) : Node(Type::Expres
             }
             // no content :) for input()
             if (parser.nextWord() != ")")
-                throw std::runtime_error("eyo what");
+                throw std::runtime_error(fmt::format("Missing ) after querying method {}.", content));
         } else {
             expression = Expression::Variable;
         }

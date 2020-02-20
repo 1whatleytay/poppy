@@ -2,6 +2,8 @@
 
 #include <nodes/expression.h>
 
+#include <fmt/format.h>
+
 json CallNode::build() {
     if (name == "say" || name == "delay") {
         return { { "type", name }, { "source", children[0]->build() } };
@@ -14,7 +16,7 @@ CallNode::CallNode(Parser &parser, Node *parent) : Node(Type::Call, parent) {
     name = parser.nextWord();
 
     if (parser.nextWord() != "(")
-        throw std::runtime_error("scuexem");
+        throw std::runtime_error(fmt::format("Internal error related to calling function {}.", name));
 
     if (name == "say" || name == "delay") {
         // takes one param
@@ -22,5 +24,5 @@ CallNode::CallNode(Parser &parser, Node *parent) : Node(Type::Call, parent) {
     }
 
     if (parser.nextWord() != ")")
-        throw std::runtime_error("Wat");
+        throw std::runtime_error(fmt::format("Missing ) related to calling function {}.", name));
 }

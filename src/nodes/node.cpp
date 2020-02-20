@@ -26,7 +26,7 @@ Node *Node::searchParent(const std::function<bool(Node *)> &checker) {
 }
 
 json Node::build() {
-//    throw std::runtime_error("what the hecky are you doing?");
+    throw std::runtime_error("Unknown internal error related to building.");
     return { };
 }
 

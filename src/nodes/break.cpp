@@ -8,5 +8,5 @@ json BreakNode::build() {
 
 BreakNode::BreakNode(Parser &parser, Node *parent) : Node(Type::Break, parent) {
     if (parser.nextWord() != "break")
-        throw std::runtime_error("impossible!");
+        throw std::runtime_error("Internal error related to break.");
 }

@@ -7,6 +7,8 @@
 #include <nodes/break.h>
 #include <nodes/statement.h>
 
+#include <fmt/format.h>
+
 json CodeNode::build() {
     std::vector<json> result;
 
@@ -39,8 +41,10 @@ CodeNode::CodeNode(Parser &parser, Node *parent) : Node(Type::Code, parent) {
                 children.push_back(std::make_shared<CallNode>(parser, this));
             } else if (next == "=" || next == "+" || next == "-") { // assign
                 children.push_back(std::make_shared<StatementNode>(parser, this));
-            } else
-                throw std::runtime_error("unknown the heck");
+            } else {
+                throw std::runtime_error(
+                    fmt::format("Unknown statement with keyword {} (followed by {}).", keyword, next));
+            }
         }
     }
 }
